@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+
+  webserver:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - cms-network
+    depends_on:
+      - php
+
+  php:
+    image: php:8.2-fpm
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - cms-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: dockerCmsRoot
+      MYSQL_DATABASE: DockerCMS
+      MYSQL_USER: shvartsenberg
+      MYSQL_PASSWORD: DockerCMSPassword
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - cms-network
+    ports:
+      - "3306:3306"
+
+networks:
+  cms-network:
+    driver: bridge
